@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import ProductCard from './ProductCard';
 import { FilterValues } from './FilterPopup';
@@ -44,7 +44,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const applyFilters = (products: Product[]) => {
+  const applyFilters = useCallback(() => {
     if (!filters) return products;
 
     return products.filter(product => {
@@ -77,7 +77,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
 
       return true;
     });
-  };
+  }, [products, filters]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -110,7 +110,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     };
 
     fetchProducts();
-  }, [category, filters]);
+  }, [category, filters, applyFilters]);
 
   if (loading) {
     return (
