@@ -166,7 +166,7 @@ const FilterPopup = ({ category, onClose, onApplyFilters }: FilterPopupProps) =>
                     onChange={(e) => {
                       const newFeatures = e.target.checked
                         ? [...(filters.features || []), feature]
-                        : features?.filter(f => f !== feature);
+                        : filters.vehicle?.filter(v => v !== vehicle);
                       setFilters({ ...filters, features: newFeatures });
                     }}
                     className="rounded text-primary-500"
