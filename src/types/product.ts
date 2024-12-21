@@ -10,8 +10,13 @@ export interface Gallery {
 }
 
 export interface Route {
+  id: number;
+  name: string;
   startTime: string[];
   groupSize: number;
+  duration: string;
+  guideLanguage: string[];
+  // Add other route properties as needed
 }
 
 export interface Vehicle {
@@ -30,7 +35,7 @@ export interface Product {
     childPrice: number;
     infantPrice: number;
   };
-  route: Route;
+  routes: Route[];
   vehicle: Vehicle;
   productCategory: 'tour' | 'ticket' | 'rent' | 'transfer';
   tourCategory: {
@@ -38,6 +43,7 @@ export interface Product {
   };
   foodAndDrinks: Array<{
     name: string;
+    isActive: boolean;
   }>;
 }
 

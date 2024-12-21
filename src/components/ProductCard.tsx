@@ -6,28 +6,24 @@ interface ProductCardProps {
     id: number;
     title: string;
     description: string;
-    galleries: { id: number; url: string }[];
-    price: {
+    galleries: { id: number; url: string; }[];
+    price: { 
       adultPrice: number;
       childPrice: number;
       infantPrice: number;
     };
-    vehicle: {
-      name: string;
-    };
-    tourCategory: {
-      name: string;
-    };
+    vehicle: { name: string; };
+    tourCategory: { name: string; };
     routes: Array<{
-      duration: string;
-      groupSize: number;
       startTime: string[];
+      groupSize: number;
+      duration: string;
       guideLanguage: string[];
     }>;
-    foodAndDrinks: Array<{
+    foodAndDrinks: { 
       name: string;
       isActive: boolean;
-    }>;
+    }[];
   };
 }
 
@@ -35,8 +31,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const route = product.routes[0];
   const [showAllItems, setShowAllItems] = useState(false);
 
-  const activeItems = product.foodAndDrinks.filter(item => item.isActive);
-  const displayItems = showAllItems ? activeItems : activeItems.slice(0, 3);
+  if (!route) return null;
+
+  const displayItems = showAllItems ? product.foodAndDrinks : product.foodAndDrinks.slice(0, 3);
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -90,12 +87,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 {item.name}
               </span>
             ))}
-            {!showAllItems && activeItems.length > 3 && (
+            {!showAllItems && product.foodAndDrinks.length > 3 && (
               <button
                 onClick={() => setShowAllItems(true)}
                 className="text-xs text-primary-500 hover:text-primary-600"
               >
-                +{activeItems.length - 3} more
+                +{product.foodAndDrinks.length - 3} more
               </button>
             )}
           </div>

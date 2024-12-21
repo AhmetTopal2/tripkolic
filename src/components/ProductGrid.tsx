@@ -21,7 +21,8 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     if (!filters) return productsToFilter;
 
     return productsToFilter.filter(product => {
-      if (!product.route) return false;
+      if (!product.routes?.[0]) return false;
+      const route = product.routes[0];
       
       // Price filter
       const price = product.price.adultPrice;
@@ -30,13 +31,13 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
       }
 
       // Group size filter
-      if (product.route.groupSize < filters.groupSize[0] || 
-          product.route.groupSize > filters.groupSize[1]) {
+      if (route.groupSize < filters.groupSize[0] || 
+          route.groupSize > filters.groupSize[1]) {
         return false;
       }
 
       // Start time filter
-      const startTimes = product.route.startTime;
+      const startTimes = route.startTime;
       const hasValidTime = startTimes.some(time => {
         return time >= filters.startTime[0] && time <= filters.startTime[1];
       });
@@ -57,21 +58,9 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
       try {
         setLoading(true);
         const response = await axios.get<ApiResponse>('https://beta.tripkolic.com/api/v1/product/task/tours');
-        const filteredByCategory = response.data.products.filter(product => {
-          switch (category) {
-            case 'tours':
-              return product.productCategory === 'tour';
-            case 'tickets':
-              return product.productCategory === 'ticket';
-            case 'rent':
-              return product.productCategory === 'rent';
-            case 'transfer':
-              return product.productCategory === 'transfer';
-            default:
-              return true;
-          }
-        });
-        
+        const filteredByCategory = response.data.products.filter(product => 
+          product.productCategory.toLowerCase() === category.toLowerCase().replace(/s$/, '')
+        );
         setProducts(filteredByCategory);
       } catch (err) {
         setError('Failed to fetch products');
