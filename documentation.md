@@ -18,6 +18,7 @@ Bu proje, turlar, biletler, kiralama ve transfer hizmetleri için mobil öncelik
 
 ### 3. FilterPopup (`src/components/FilterPopup.tsx`)
 - Gelişmiş filtreleme arayüzü
+- Lokasyon arama
 - Fiyat aralığı seçimi
 - Başlangıç zamanı filtresi
 - Grup büyüklüğü filtresi
@@ -26,14 +27,31 @@ Bu proje, turlar, biletler, kiralama ve transfer hizmetleri için mobil öncelik
 ### 4. ProductGrid (`src/components/ProductGrid.tsx`)
 - Ürünleri grid yapısında gösterir
 - API'den veri çeker
-- Filtreleme mantığını uygular
+- Filtreleme mantığını uygular:
+  - Lokasyon bazlı filtreleme
+  - Fiyat bazlı filtreleme
+  - Zaman bazlı filtreleme
+  - Grup büyüklüğü filtreleme
+  - Araç tipi filtreleme
 - Yükleme ve hata durumlarını yönetir
 
 ### 5. ProductCard (`src/components/ProductCard.tsx`)
 - Tek bir ürünü görüntüler
 - Resim galerisi
-- Ürün detayları
-- Fiyat ve rezervasyon butonu
+- Ürün detayları:
+  - Başlık ve kategori
+  - Fiyat bilgisi
+  - Süre ve grup büyüklüğü
+  - Ulaşım aracı
+  - Rehber dilleri
+- Lokasyon bilgileri:
+  - Başlangıç noktası
+  - Durak noktaları
+  - Durak süreleri
+  - Her duraktaki aktiviteler
+- Dahil olan hizmetler
+- Başlangıç saatleri
+- Rezervasyon butonu
 
 ### 6. ImageCarousel (`src/components/ImageCarousel.tsx`)
 - Ürün resimlerini slider olarak gösterir
@@ -45,144 +63,31 @@ Bu proje, turlar, biletler, kiralama ve transfer hizmetleri için mobil öncelik
 - Form doğrulama
 - Test kullanıcı girişi
 
-## API Entegrasyonu
+## Veri Yapıları
 
-### Endpoint
-```
-https://beta.tripkolic.com/api/v1/product/task/tours
-```
-
-### Veri Yapısı
+### Route (Rota) Yapısı
 ```typescript
-// Ana ürün arayüzü
-interface Product {
+interface Route {
   id: number;
-  productId: string;
-  title: string;
-  description: string;
-  isPayLater: boolean;
-  cutOffTime: number;
-  resarvationDeadline: string | null;
-  transferType: string;
-  isTransfer: boolean;
-  transferDescription: string;
-  guideLanguage: string[] | null;
-  operatingDays: string[] | null;
-  
-  // Konum bilgisi
-  activityLocation: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-  
-  // Araç bilgisi
-  vehicle: {
+  name: string;
+  startTime: string[];
+  groupSize: number;
+  duration: string;
+  guideLanguage: string[];
+  locations?: Array<{
     id: number;
+    lat: number;
+    lng: number;
     name: string;
-  };
-  
-  // Yiyecek ve içecek seçenekleri
-  foodAndDrinks: Array<{
-    id: number;
-    name: string;
-    isActive: boolean;
+    stop: number | null;
+    activities: Array<{ name: string }>;
+    sightseeing: boolean;
   }>;
-  
-  // Tur kategorisi
-  tourCategory: {
-    id: number;
-    name: string;
-  };
-  
-  // Rota bilgileri
-  routes: Array<{
-    id: number;
-    name: string;
-    startDate: string;
-    endDate: string;
-    operatingDays: string[];
-    locations: Array<{
-      id: number;
-      lat: number;
-      lng: number;
-      name: string;
-      stop: number | null;
-      activities: Array<{ name: string }>;
-      sightseeing: boolean;
-    }>;
-    groupSize: number;
-    startTime: string[];
-    duration: string;
-    guideLanguage: string[];
-  }>;
-  
-  // Fiyatlandırma
-  price: {
-    id: number;
-    isShared: boolean;
-    isPrivate: boolean;
-    adultPrice: number;
-    childPrice: number;
-    infantPrice: number;
-    addOns: any[];
-    additionalPrices: {
-      adultPrice: number;
-      childPrice: number;
-      infantPrice: number;
-    };
-    group: {
-      size: number;
-      retailPrice: number;
-    };
-  };
-  
-  // Fiyat bilgi detayları
-  pricesInfo: {
-    id: number;
-    minAge: number | null;
-    pricingBase: string;
-    scale: {
-      adult: {
-        max: number;
-        min: number;
-      };
-      child: {
-        max: number;
-        min: number;
-      } | null;
-      infant: {
-        max: number;
-        min: number;
-      } | null;
-    };
-  };
-  
-  // Galeri resimleri
-  galleries: Array<{
-    id: number;
-    url: string;
-  }>;
-  
-  // Diğer alanlar
-  isShared: boolean | null;
-  locations: any | null;
-  availability: any[];
-  draft: boolean;
-  transferStartTimeOffset: number | null;
-  transferVehicleCapacity: number | null;
-  step: number;
-  stepChild: number;
-  createdAt: string;
-  productCategory: string;
 }
+```
 
-// API Yanıt yapısı
-interface ApiResponse {
-  products: Product[];
-}
-
-// Filtre değerleri arayüzü
+### Filtre Değerleri
+```typescript
 interface FilterValues {
   location?: string;
   priceRange: [number, number];
@@ -195,68 +100,25 @@ interface FilterValues {
 }
 ```
 
-### Örnek API Yanıtı
-```json
-{
-  "products": [
-    {
-      "id": 1,
-      "productId": "111172024",
-      "title": "Yeni Turu",
-      "description": "Tur açıklaması",
-      "price": {
-        "adultPrice": 7000,
-        "childPrice": 3500,
-        "infantPrice": 0
-      },
-      "vehicle": {
-        "id": 5,
-        "name": "Catamaran"
-      },
-      "tourCategory": {
-        "id": 2,
-        "name": "Safari"
-      },
-      "routes": [
-        {
-          "groupSize": 4,
-          "startTime": ["05:00", "08:00"],
-          "duration": "3",
-          "guideLanguage": ["English", "Spanish"]
-        }
-      ],
-      "galleries": [
-        {
-          "id": 1,
-          "url": "https://tripkolic-beta.s3.amazonaws.com/1731879985011.jpg"
-        }
-      ]
-    }
-  ]
-}
-```
+## Yeni Özellikler ve Güncellemeler
 
-## Durum Yönetimi
+### 1. Lokasyon Bazlı Arama
+- Lokasyon arama alanı eklendi
+- Hem ana lokasyon hem de durak noktalarında arama yapabilme
+- Case-insensitive arama desteği
 
-### Ana Sayfa Durumları
-- selectedCategory: Seçili kategori
-- isMenuOpen: Menü açık/kapalı durumu
-- showLogin: Giriş formu görünürlüğü
-- isLoggedIn: Kullanıcı giriş durumu
-- filters: Aktif filtreler
+### 2. Gelişmiş Rota Görüntüleme
+- Başlangıç noktası gösterimi
+- Durak noktaları listesi
+- Her durak için:
+  - Durak süresi
+  - Aktivite listesi
+  - Görsel işaretleyiciler
 
-### Filtre Durumları
-- priceRange: Fiyat aralığı [min, max]
-- startTime: Başlangıç zamanı aralığı
-- groupSize: Grup büyüklüğü aralığı
-- vehicle: Seçili araç tipleri
-- features: Seçili özellikler
-
-## Test Kullanıcı Bilgileri
-```
-Email: test@example.com
-Şifre: password123
-```
+### 3. Filtreleme İyileştirmeleri
+- Lokasyon bazlı filtreleme eklendi
+- Filtre mantığı optimize edildi
+- Daha iyi hata yönetimi
 
 ## Kurulum ve Çalıştırma
 
@@ -283,3 +145,14 @@ http://localhost:3000
 - Tailwind ile stil yönetimi
 - Next.js görüntü optimizasyonu
 - API veri önbelleği
+- Lokasyon bazlı arama ve filtreleme
+- Detaylı rota görüntüleme
+
+## Gelecek Geliştirmeler
+
+1. Harita entegrasyonu
+2. Gelişmiş lokasyon filtreleme
+3. Rota optimizasyonu
+4. Çoklu dil desteği
+5. Performans iyileştirmeleri
+6. Offline kullanım desteği
