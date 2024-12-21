@@ -21,6 +21,7 @@ export interface FilterValues {
 
 const FilterPopup = ({ category, onClose, onApplyFilters }: FilterPopupProps) => {
   const [filters, setFilters] = useState<FilterValues>({
+    location: '',
     priceRange: [0, 10000],
     startTime: ['00:00', '23:59'],
     groupSize: [1, 50],
@@ -32,6 +33,7 @@ const FilterPopup = ({ category, onClose, onApplyFilters }: FilterPopupProps) =>
 
   const handleReset = () => {
     setFilters({
+      location: '',
       priceRange: [0, 10000],
       startTime: ['00:00', '23:59'],
       groupSize: [1, 50],
@@ -63,6 +65,21 @@ const FilterPopup = ({ category, onClose, onApplyFilters }: FilterPopupProps) =>
         </div>
 
         <div className="p-4 space-y-6">
+          {/* Location Search */}
+          <div>
+            <label className="text-sm font-medium text-black">Location</label>
+            <input
+              type="text"
+              value={filters.location}
+              onChange={(e) => setFilters({
+                ...filters,
+                location: e.target.value
+              })}
+              placeholder="Search by location..."
+              className="w-full mt-1 px-3 py-2 border rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+          </div>
+
           {/* Price Range */}
           <div>
             <label className="text-sm font-medium text-black">Price Range</label>

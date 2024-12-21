@@ -24,6 +24,20 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
       if (!product.routes?.[0]) return false;
       const route = product.routes[0];
       
+      // Location filter
+      if (filters.location) {
+        const searchLocation = filters.location.toLowerCase();
+        const productLocation = product.activityLocation.address.toLowerCase();
+        const locationMatches = productLocation.includes(searchLocation);
+        
+        // Also search in route locations if they exist
+        const routeLocationMatches = route.locations?.some(loc => 
+          loc.name.toLowerCase().includes(searchLocation)
+        );
+
+        if (!locationMatches && !routeLocationMatches) return false;
+      }
+      
       // Price filter
       const price = product.price.adultPrice;
       if (price < filters.priceRange[0] || price > filters.priceRange[1]) {
