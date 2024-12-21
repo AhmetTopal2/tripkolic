@@ -21,8 +21,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     if (!filters) return productsToFilter;
 
     return productsToFilter.filter(product => {
-      if (!product.routes?.[0]) return false;
-      const route = product.routes[0];
+      if (!product.route) return false;
       
       // Price filter
       const price = product.price.adultPrice;
@@ -31,12 +30,13 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
       }
 
       // Group size filter
-      if (route.groupSize < filters.groupSize[0] || route.groupSize > filters.groupSize[1]) {
+      if (product.route.groupSize < filters.groupSize[0] || 
+          product.route.groupSize > filters.groupSize[1]) {
         return false;
       }
 
       // Start time filter
-      const startTimes = route.startTime;
+      const startTimes = product.route.startTime;
       const hasValidTime = startTimes.some(time => {
         return time >= filters.startTime[0] && time <= filters.startTime[1];
       });

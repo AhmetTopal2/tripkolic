@@ -9,6 +9,15 @@ export interface Gallery {
   url: string;
 }
 
+export interface Route {
+  startTime: string[];
+  groupSize: number;
+}
+
+export interface Vehicle {
+  name: string;
+}
+
 export interface Product {
   id: number;
   productId: string;
@@ -21,13 +30,8 @@ export interface Product {
     childPrice: number;
     infantPrice: number;
   };
-  routes: Array<{
-    startTime: string[];
-    groupSize: number;
-  }>;
-  vehicle: {
-    name: string;
-  };
+  route: Route;
+  vehicle: Vehicle;
   productCategory: 'tour' | 'ticket' | 'rent' | 'transfer';
   tourCategory: {
     name: string;
