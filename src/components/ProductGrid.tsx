@@ -4,64 +4,23 @@ import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import ProductCard from './ProductCard';
 import { FilterValues } from './FilterPopup';
+import { Product, ApiResponse } from '@/types/product';
 
 interface ProductGridProps {
   category: string;
   filters?: FilterValues;
 }
 
-interface Location {
-  address: string;
-  latitude: number;
-  longitude: number;
-}
-
-interface Gallery {
-  id: number;
-  url: string;
-}
-
-interface Product {
-  id: number;
-  productId: string;
-  title: string;
-  description: string;
-  activityLocation: Location;
-  galleries: Gallery[];
-  price: {
-    adultPrice: number;
-    childPrice: number;
-    infantPrice: number;
-  };
-  routes: {
-    startTime: string[];
-    groupSize: number;
-  }[];
-  vehicle: {
-    name: string;
-  };
-  productCategory: 'tour' | 'ticket' | 'rent' | 'transfer';
-  tourCategory: {
-    name: string;
-  };
-  foodAndDrinks: {
-    name: string;
-  }[];
-}
-
-interface ApiResponse {
-  products: Product[];
-}
-
 const ProductGrid = ({ category, filters }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  const applyFilters = useCallback(() => {
-    if (!filters) return products;
+  const applyFilters = useCallback((productsToFilter: Product[]) => {
+    if (!filters) return productsToFilter;
 
-    return products.filter(product => {
+    return productsToFilter.filter(product => {
       if (!product.routes?.[0]) return false;
       const route = product.routes[0];
       
@@ -78,7 +37,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
 
       // Start time filter
       const startTimes = route.startTime;
-      const hasValidTime = startTimes.some((time: string) => {
+      const hasValidTime = startTimes.some(time => {
         return time >= filters.startTime[0] && time <= filters.startTime[1];
       });
       if (!hasValidTime) return false;
@@ -90,8 +49,9 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
 
       return true;
     });
-  }, [products, filters]);
+  }, [filters]);
 
+  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -124,10 +84,11 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     fetchProducts();
   }, [category]);
 
+  // Apply filters whenever products or filters change
   useEffect(() => {
-    const filteredProducts = applyFilters();
-    setProducts(filteredProducts);
-  }, [filters, applyFilters]);
+    const filtered = applyFilters(products);
+    setFilteredProducts(filtered);
+  }, [products, applyFilters]);
 
   if (loading) {
     return (
@@ -145,7 +106,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     );
   }
 
-  if (!products.length) {
+  if (!filteredProducts.length) {
     return (
       <div className="text-center text-gray-700 py-8 text-lg">
         No data found in the category you are looking for
@@ -155,7 +116,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
 
   return (
     <div className="grid grid-cols-1 gap-4">
-      {products.map((product) => (
+      {filteredProducts.map((product) => (
         <ProductCard 
           key={product.id} 
           product={product}
