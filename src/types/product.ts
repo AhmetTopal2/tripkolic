@@ -16,7 +16,15 @@ export interface Route {
   groupSize: number;
   duration: string;
   guideLanguage: string[];
-  // Add other route properties as needed
+  locations?: Array<{
+    id: number;
+    lat: number;
+    lng: number;
+    name: string;
+    stop: number | null;
+    activities: Array<{ name: string }>;
+    sightseeing: boolean;
+  }>;
 }
 
 export interface Vehicle {

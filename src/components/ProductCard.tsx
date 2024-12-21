@@ -19,11 +19,23 @@ interface ProductCardProps {
       groupSize: number;
       duration: string;
       guideLanguage: string[];
+      locations?: Array<{
+        id: number;
+        lat: number;
+        lng: number;
+        name: string;
+        stop: number | null;
+        activities: Array<{ name: string }>;
+        sightseeing: boolean;
+      }>;
     }>;
     foodAndDrinks: { 
       name: string;
       isActive: boolean;
     }[];
+    activityLocation: {
+      address: string;
+    };
   };
 }
 
@@ -73,6 +85,44 @@ const ProductCard = ({ product }: ProductCardProps) => {
               <p className="text-gray-700">Languages</p>
               <p className="font-medium text-black">{route.guideLanguage.join(', ')}</p>
             </div>
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <p className="text-sm font-medium text-black mb-2">Locations:</p>
+          <div className="space-y-2">
+            <div className="flex items-start gap-2">
+              <svg className="w-4 h-4 mt-1 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <div>
+                <p className="text-sm font-medium text-black">Starting Point</p>
+                <p className="text-sm text-gray-600">{product.activityLocation.address}</p>
+              </div>
+            </div>
+            {route.locations?.map((location, index) => (
+              <div key={location.id} className="flex items-start gap-2">
+                <svg className="w-4 h-4 mt-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-black">Stop {index + 1}</p>
+                  <p className="text-sm text-gray-600">{location.name}</p>
+                  {location.stop && <p className="text-xs text-gray-500">Stop duration: {location.stop} min</p>}
+                  {location.activities.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {location.activities.map(activity => (
+                        <span key={activity.name} className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">
+                          {activity.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
