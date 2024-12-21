@@ -33,6 +33,20 @@ interface Product {
     childPrice: number;
     infantPrice: number;
   };
+  routes: {
+    startTime: string[];
+    groupSize: number;
+  }[];
+  vehicle: {
+    name: string;
+  };
+  productCategory: 'tour' | 'ticket' | 'rent' | 'transfer';
+  tourCategory: {
+    name: string;
+  };
+  foodAndDrinks: {
+    name: string;
+  }[];
 }
 
 interface ApiResponse {
@@ -48,6 +62,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     if (!filters) return products;
 
     return products.filter(product => {
+      if (!product.routes?.[0]) return false;
       const route = product.routes[0];
       
       // Price filter
@@ -63,7 +78,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
 
       // Start time filter
       const startTimes = route.startTime;
-      const hasValidTime = startTimes.some(time => {
+      const hasValidTime = startTimes.some((time: string) => {
         return time >= filters.startTime[0] && time <= filters.startTime[1];
       });
       if (!hasValidTime) return false;
@@ -72,8 +87,6 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
       if (filters.vehicle?.length && !filters.vehicle.includes(product.vehicle.name)) {
         return false;
       }
-
-      
 
       return true;
     });
@@ -99,8 +112,7 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
           }
         });
         
-        const filteredProducts = applyFilters(filteredByCategory);
-        setProducts(filteredProducts);
+        setProducts(filteredByCategory);
       } catch (err) {
         setError('Failed to fetch products');
         console.error('Error fetching products:', err);
@@ -110,7 +122,12 @@ const ProductGrid = ({ category, filters }: ProductGridProps) => {
     };
 
     fetchProducts();
-  }, [category, filters, applyFilters]);
+  }, [category]);
+
+  useEffect(() => {
+    const filteredProducts = applyFilters();
+    setProducts(filteredProducts);
+  }, [filters, applyFilters]);
 
   if (loading) {
     return (
